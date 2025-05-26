@@ -101,11 +101,29 @@ class therapy_graph:
                 print(node.labels)
 
         return all_nodes
+    
+    def create_vector_index():
+        """this is only a 1 time use function"""
+        with driver.session() as session:
+            query = """
+            CREATE VECTOR INDEX message_text_vector IF NOT EXISTS
+            FOR (m:Message) ON (m.text_vector)
+            OPTIONS {
+              indexConfig: {
+                `vector.dimensions`: 384,
+                `vector.similarity_function`: 'cosine'
+              }
+            }
+            """
+            result = session.run(query)
+            return result.consume()
+
 
 
 if __name__ == "__main__":
     print("hello")
-    all_nodes = therapy_graph.get_all_nodes(print_nodes=True)
+    #all_nodes = therapy_graph.get_all_nodes(print_nodes=True)
+    _ = therapy_graph.create_vector_index()
 
     
 
