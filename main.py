@@ -118,18 +118,17 @@ class therapy_graph:
             result = session.run(query)
             if consume:
                 consume_item = result.consume()
-                print("The consume ",consume_item.result_consumed_after)
-                print("The consume ",consume_item.result_available_after)
+                print(f"Query executed in: {consume_item.result_available_after} ms")
+                print(f"Records available: {consume_item.result_consumed_after} ms")
+  
 
 
 
 if __name__ == "__main__":
     print("hello")
     #all_nodes = therapy_graph.get_all_nodes(print_nodes=True)
-    _ = therapy_graph.create_vector_index()
-    print(f"Query executed in: {_.result_available_after} ms")
-    print(f"Records available: {_.result_consumed_after} ms")
-    print(f"Database: {_.database}")
+    therapy_graph.create_vector_index()
+   
     
 
     
