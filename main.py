@@ -120,7 +120,28 @@ class therapy_graph:
                 consume_item = result.consume()
                 print(f"Query executed in: {consume_item.result_available_after} ms")
                 print(f"Records available: {consume_item.result_consumed_after} ms")
-  
+    
+    def new_message_node(conversation_id, message_id, plan_id, user):
+        with driver.session() as session:
+            query = """
+            CREATE (m:Message {
+                text: '',
+                conversation_id: $conversation_id,
+                message_id: $message_id,
+                plan_id: $plan_id,
+                user: $user_name,
+                created_at: datetime(),
+                role: $user
+            })
+            RETURN m
+            """
+            result = session.run(query, 
+                                conversation_id=conversation_id,
+                                message_id=message_id,
+                                plan_id=plan_id,
+                                user_name=user,
+                                user=user)
+            return result.single()
 
 
 
