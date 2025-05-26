@@ -184,7 +184,7 @@ class therapy_graph:
                 print(f"Records available: {consume_item.result_consumed_after} ms")
 
 
-    def add_message_node(conversation_id, message_id, plan_id, username):
+    def add_message_node(conversation_id, message_id, plan_id, username) -> dict:
         with driver.session() as session:
             query = """
             CREATE (m:Message {
@@ -192,7 +192,7 @@ class therapy_graph:
                 conversation_id: $conversation_id,
                 message_id: $message_id,
                 plan_id: $plan_id,
-                user: $username,
+                username: $username,
                 created_at: datetime(),
                 role: $user
             })
@@ -202,7 +202,7 @@ class therapy_graph:
                                 conversation_id=conversation_id,
                                 message_id=message_id,
                                 plan_id=plan_id,
-                                user_name=username,
+                                username=username,
                                 user=username)
             return result.single()
 
@@ -235,18 +235,18 @@ class therapy_graph:
             result = session.run(query, name=name, username=username, role=role)
             return result.single()
     
-    def connect_emotion(emotion_name, username):
+    def connect_emotion(emotion_name, message_id):
         """Add emotion to a person"""
         with driver.session() as session:
             query = """
             MATCH (e:Emotion {name: $emotion_name})
-            MATCH (u:Username {username: $username})
+            MATCH (u:message_id {message_id: $message_id})
             CREATE (u)-[:HAS_EMOTION]->(e)
             RETURN u, e
             """
-            result = session.run(query, emotion_name=emotion_name, username=username)
+            result = session.run(query, emotion_name=emotion_name, message_id=message_id)
             
-            print(f"Emotion '{emotion_name}' added to user '{username}' successfully!")
+            print(f"Emotion '{emotion_name}' added to user '{message_id}' successfully!")
             return result.single()
         
 
@@ -256,10 +256,16 @@ if __name__ == "__main__":
     print("hello")
     #all_nodes = therapy_graph.get_all_nodes(print_nodes=True)
     #therapy_graph.add_person(name="mom", username="user_1", role="mother")
-    therapy_graph.add_emotion(username="user_1", emotion_name="joy")
+    #therapy_graph.add_emotion(username="user_1", emotion_name="joy")
     #therapy_graph.delete_all_people()
     #therapy_graph.create_username("John Doe", "user_1")
-    
+    therapy_graph.add_message_node(
+        conversation_id="conv_123",
+        message_id="msg_456",
+        plan_id="plan_789",
+        username="user_1"
+    )
+
    
     
 
