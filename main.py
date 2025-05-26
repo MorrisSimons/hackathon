@@ -90,7 +90,22 @@ class therapy_graph:
             print(f"Remaining emotion nodes: {emotion_count}")
             return emotion_count
 
+    def get_all_nodes(print_nodes=False):
+        with driver.session() as session:
+            query = "MATCH (n) RETURN n"
+            result = session.run(query)
+            all_nodes = [record["n"] for record in result]
+
+        if print_nodes:
+            for node in all_nodes:
+                print(node.labels)
+
+        return all_nodes
+
 
 if __name__ == "__main__":
     print("hello")
-    therapy_graph.insert_emotions_as_nodes()
+    all_nodes = therapy_graph.get_all_nodes(print_nodes=True)
+
+    
+
