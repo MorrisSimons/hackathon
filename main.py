@@ -48,7 +48,7 @@ class therapy_graph:
             print(f"Remaining nodes: {node_count}")
             return node_count
 
-    def delete_emotions():
+    def delete_emotions_classes():
         with driver.session() as session:
             # Delete all emotion nodes
             query = "MATCH (e:Emotion) DETACH DELETE e"
@@ -63,6 +63,20 @@ class therapy_graph:
             print(f"Remaining emotion nodes: {emotion_count}")
             return emotion_count
 
+    def delete_all_emotion_connections():
+        with driver.session() as session:
+            # Delete all HAS_EMOTION relationships
+            query = "MATCH ()-[r:HAS_EMOTION]->() DELETE r"
+            session.run(query)
+            print("All emotion connections deleted successfully!")
+
+        # Verify deletion
+        with driver.session() as session:
+            count_query = "MATCH ()-[r:HAS_EMOTION]->() RETURN count(r) as connection_count"
+            result = session.run(count_query)
+            connection_count = result.single()["connection_count"]
+            print(f"Remaining emotion connections: {connection_count}")
+            return connection_count
 
     def delete_all_people():
         with driver.session() as session:
@@ -184,26 +198,25 @@ class therapy_graph:
                 print(f"Records available: {consume_item.result_consumed_after} ms")
 
 
-    def add_message_node(conversation_id, message_id, plan_id, username) -> dict:
+    def add_message_node(conversation_id, message_id, username) -> dict:
         with driver.session() as session:
             query = """
+            MATCH (u:Username {username: $username})
             CREATE (m:Message {
                 text: '',
                 conversation_id: $conversation_id,
                 message_id: $message_id,
-                plan_id: $plan_id,
                 username: $username,
                 created_at: datetime(),
-                role: $user
+                label: $message_id
             })
-            RETURN m
+            CREATE (m)-[:SENT_BY]->(u)
+            RETURN m, u
             """
             result = session.run(query, 
                                 conversation_id=conversation_id,
                                 message_id=message_id,
-                                plan_id=plan_id,
-                                username=username,
-                                user=username)
+                                username=username)
             return result.single()
 
     def add_username(name, username):
@@ -259,14 +272,10 @@ if __name__ == "__main__":
     #therapy_graph.add_emotion(username="user_1", emotion_name="joy")
     #therapy_graph.delete_all_people()
     #therapy_graph.create_username("John Doe", "user_1")
-    therapy_graph.add_message_node(
-        conversation_id="conv_123",
-        message_id="msg_456",
-        plan_id="plan_789",
-        username="user_1"
-    )
-
-   
+    therapy_graph.delete_all_messages()
+    therapy_graph.delete_all_emotion_connections()
+    therapy_graph.add_message_node(conversation_id="conv_1", message_id="msg_1", username="user_1")
+    therapy_graph
     
 
     
