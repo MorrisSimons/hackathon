@@ -102,7 +102,7 @@ class therapy_graph:
 
         return all_nodes
     
-    def create_vector_index():
+    def create_vector_index(consume=False):
         """this is only a 1 time use function"""
         with driver.session() as session:
             query = """
@@ -116,7 +116,10 @@ class therapy_graph:
             }
             """
             result = session.run(query)
-            return result.consume()
+            if consume:
+                consume_item = result.consume()
+                print("The consume ",consume_item.result_consumed_after)
+                print("The consume ",consume_item.result_available_after)
 
 
 
@@ -124,6 +127,10 @@ if __name__ == "__main__":
     print("hello")
     #all_nodes = therapy_graph.get_all_nodes(print_nodes=True)
     _ = therapy_graph.create_vector_index()
+    print(f"Query executed in: {_.result_available_after} ms")
+    print(f"Records available: {_.result_consumed_after} ms")
+    print(f"Database: {_.database}")
+    
 
     
 
