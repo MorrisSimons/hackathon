@@ -33,6 +33,22 @@ print("Connected to Neo4j database successfully!")
 
 class therapy_graph:
 
+    def delete_emotions():
+        with driver.session() as session:
+            # Delete all emotion nodes
+            query = "MATCH (e:Emotion) DETACH DELETE e"
+            session.run(query)
+            print("All emotion nodes deleted successfully!")
+
+        # Verify deletion
+        with driver.session() as session:
+            count_query = "MATCH (e:Emotion) RETURN count(e) as emotion_count"
+            result = session.run(count_query)
+            emotion_count = result.single()["emotion_count"]
+            print(f"Remaining emotion nodes: {emotion_count}")
+            return emotion_count
+
+
     def insert_emotions_as_nodes():
          # List of human emotions
         human_emotions = [
@@ -75,21 +91,6 @@ class therapy_graph:
             print(f"Failed to insert emotions: {e}")
             assert False, "Error inserting emotions into Neo4j database" # TODO: REMOVE ME
 
-    def delete_emotions():
-        with driver.session() as session:
-            # Delete all emotion nodes
-            query = "MATCH (e:Emotion) DETACH DELETE e"
-            session.run(query)
-            print("All emotion nodes deleted successfully!")
-
-        # Verify deletion
-        with driver.session() as session:
-            count_query = "MATCH (e:Emotion) RETURN count(e) as emotion_count"
-            result = session.run(count_query)
-            emotion_count = result.single()["emotion_count"]
-            print(f"Remaining emotion nodes: {emotion_count}")
-            return emotion_count
-
     def get_all_nodes(print_nodes=False):
         with driver.session() as session:
             query = "MATCH (n) RETURN n"
@@ -120,7 +121,8 @@ class therapy_graph:
                 consume_item = result.consume()
                 print(f"Query executed in: {consume_item.result_available_after} ms")
                 print(f"Records available: {consume_item.result_consumed_after} ms")
-    
+
+
     def new_message_node(conversation_id, message_id, plan_id, user):
         with driver.session() as session:
             query = """
@@ -143,6 +145,19 @@ class therapy_graph:
                                 user=user)
             return result.single()
 
+
+    def create_person(name, role="person"):
+        with driver.session() as session:
+            query = """
+            CREATE (p:Person {
+                name: $name,
+                role: $role,
+                created_at: datetime()
+            })
+            RETURN p
+            """
+            result = session.run(query, name=name, role=role)
+            return result.single()
 
 
 if __name__ == "__main__":
