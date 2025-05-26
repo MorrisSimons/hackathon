@@ -79,6 +79,36 @@ class therapy_graph:
             print(f"Remaining person nodes: {person_count}")
             return person_count
 
+    def delete_all_usernames():
+        with driver.session() as session:
+            # Delete all username nodes
+            query = "MATCH (u:Username) DETACH DELETE u"
+            session.run(query)
+            print("All username nodes deleted successfully!")
+
+        # Verify deletion
+        with driver.session() as session:
+            count_query = "MATCH (u:Username) RETURN count(u) as username_count"
+            result = session.run(count_query)
+            username_count = result.single()["username_count"]
+            print(f"Remaining username nodes: {username_count}")
+            return username_count
+    
+    def delete_all_messages():
+        with driver.session() as session:
+            # Delete all message nodes
+            query = "MATCH (m:Message) DETACH DELETE m"
+            session.run(query)
+            print("All message nodes deleted successfully!")
+
+        # Verify deletion
+        with driver.session() as session:
+            count_query = "MATCH (m:Message) RETURN count(m) as message_count"
+            result = session.run(count_query)
+            message_count = result.single()["message_count"]
+            print(f"Remaining message nodes: {message_count}")
+            return message_count
+
 
     def insert_emotions_as_nodes():
          # List of human emotions
@@ -176,21 +206,6 @@ class therapy_graph:
                                 user=user)
             return result.single()
 
-
-    def add_person(name, related_to_username ,role="person", ):
-        with driver.session() as session:
-            query = """
-            CREATE (p:Person {
-                name: $name,
-                role: $role,
-                related_to_user: $related_to_username,
-                created_at: datetime()
-            })
-            RETURN p
-            """
-            result = session.run(query, name=name,related_to_username=related_to_username, role=role)
-            return result.single()
-
     def create_username(name, username):
         with driver.session() as session:
             query = """
@@ -205,12 +220,32 @@ class therapy_graph:
             return result.single()
 
 
+
+    def add_person(name, related_to_username, role="person"):
+        with driver.session() as session:
+            query = """
+            MATCH (u:Username {username: $related_to_username})
+            CREATE (p:Person {
+                name: $name,
+                role: $role,
+                created_at: datetime()
+            })
+            CREATE (p)-[:RELATED_TO]->(u)
+            RETURN p, u
+            """
+            result = session.run(query, name=name, related_to_username=related_to_username, role=role)
+            return result.single()
+
+
+
+
+
 if __name__ == "__main__":
     print("hello")
     #all_nodes = therapy_graph.get_all_nodes(print_nodes=True)
-    #therapy_graph.add_person("mom", username=1)
+    therapy_graph.add_person(name="mom", related_to_username="user_1", role="mother")
     #therapy_graph.delete_all_people()
-    therapy_graph.create_username("John Doe", "user_1")
+    #therapy_graph.create_username("John Doe", "user_1")
     
    
     
