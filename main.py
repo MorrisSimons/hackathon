@@ -184,7 +184,7 @@ class therapy_graph:
                 print(f"Records available: {consume_item.result_consumed_after} ms")
 
 
-    def new_message_node(conversation_id, message_id, plan_id, username):
+    def add_message_node(conversation_id, message_id, plan_id, username):
         with driver.session() as session:
             query = """
             CREATE (m:Message {
@@ -206,7 +206,7 @@ class therapy_graph:
                                 user=username)
             return result.single()
 
-    def create_username(name, username):
+    def add_username(name, username):
         with driver.session() as session:
             query = """
             CREATE (u:Username {
@@ -218,7 +218,6 @@ class therapy_graph:
             """
             result = session.run(query, name=name, username=username)
             return result.single()
-
 
 
     def add_person(name, username, role="person"):
@@ -235,8 +234,18 @@ class therapy_graph:
             """
             result = session.run(query, name=name, username=username, role=role)
             return result.single()
-
-
+    
+    def add_emotion(emotion_name, username):
+        """Add emotion to a person"""
+        with driver.session() as session:
+            query = """
+            MATCH (e:Emotion {name: $emotion_name})
+            MATCH (u:Username {username: $username})
+            CREATE (u)-[:HAS_EMOTION]->(e)
+            RETURN u, e
+            """
+            result = session.run(query, emotion_name=emotion_name, username=username)
+            return result.single()
 
 
 
