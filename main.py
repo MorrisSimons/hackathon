@@ -177,24 +177,41 @@ class therapy_graph:
             return result.single()
 
 
-    def create_person(name, role="person"):
+    def add_person(name, related_to_username ,role="person", ):
         with driver.session() as session:
             query = """
             CREATE (p:Person {
                 name: $name,
                 role: $role,
+                related_to_user: $related_to_username,
                 created_at: datetime()
             })
             RETURN p
             """
-            result = session.run(query, name=name, role=role)
+            result = session.run(query, name=name,related_to_username=related_to_username, role=role)
+            return result.single()
+
+    def create_username(name, username):
+        with driver.session() as session:
+            query = """
+            CREATE (u:Username {
+                name: $name,
+                username: $username,
+                created_at: datetime()
+            })
+            RETURN u
+            """
+            result = session.run(query, name=name, username=username)
             return result.single()
 
 
 if __name__ == "__main__":
     print("hello")
     #all_nodes = therapy_graph.get_all_nodes(print_nodes=True)
-    therapy_graph.create_vector_index()
+    #therapy_graph.add_person("mom", username=1)
+    #therapy_graph.delete_all_people()
+    therapy_graph.create_username("John Doe", "user_1")
+    
    
     
 
