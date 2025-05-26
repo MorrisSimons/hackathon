@@ -245,14 +245,18 @@ class therapy_graph:
             RETURN u, e
             """
             result = session.run(query, emotion_name=emotion_name, username=username)
+            
+            print(f"Emotion '{emotion_name}' added to user '{username}' successfully!")
             return result.single()
+        
 
 
 
 if __name__ == "__main__":
     print("hello")
     #all_nodes = therapy_graph.get_all_nodes(print_nodes=True)
-    therapy_graph.add_person(name="mom", username="user_1", role="mother")
+    #therapy_graph.add_person(name="mom", username="user_1", role="mother")
+    therapy_graph.add_emotion(username="user_1", emotion_name="joy")
     #therapy_graph.delete_all_people()
     #therapy_graph.create_username("John Doe", "user_1")
     
