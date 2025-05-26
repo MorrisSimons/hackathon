@@ -220,7 +220,7 @@ class therapy_graph:
             return result.single()
 
 
-    def add_person(name, username, role="person"):
+    def connect_person(name, username, role="person"):
         with driver.session() as session:
             query = """
             MATCH (u:Username {username: $username})
@@ -235,7 +235,7 @@ class therapy_graph:
             result = session.run(query, name=name, username=username, role=role)
             return result.single()
     
-    def add_emotion(emotion_name, username):
+    def connect_emotion(emotion_name, username):
         """Add emotion to a person"""
         with driver.session() as session:
             query = """
