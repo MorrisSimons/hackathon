@@ -184,7 +184,7 @@ class therapy_graph:
                 print(f"Records available: {consume_item.result_consumed_after} ms")
 
 
-    def new_message_node(conversation_id, message_id, plan_id, user):
+    def new_message_node(conversation_id, message_id, plan_id, username):
         with driver.session() as session:
             query = """
             CREATE (m:Message {
@@ -192,7 +192,7 @@ class therapy_graph:
                 conversation_id: $conversation_id,
                 message_id: $message_id,
                 plan_id: $plan_id,
-                user: $user_name,
+                user: $username,
                 created_at: datetime(),
                 role: $user
             })
@@ -202,8 +202,8 @@ class therapy_graph:
                                 conversation_id=conversation_id,
                                 message_id=message_id,
                                 plan_id=plan_id,
-                                user_name=user,
-                                user=user)
+                                user_name=username,
+                                user=username)
             return result.single()
 
     def create_username(name, username):
@@ -221,10 +221,10 @@ class therapy_graph:
 
 
 
-    def add_person(name, related_to_username, role="person"):
+    def add_person(name, username, role="person"):
         with driver.session() as session:
             query = """
-            MATCH (u:Username {username: $related_to_username})
+            MATCH (u:Username {username: $username})
             CREATE (p:Person {
                 name: $name,
                 role: $role,
@@ -233,7 +233,7 @@ class therapy_graph:
             CREATE (p)-[:RELATED_TO]->(u)
             RETURN p, u
             """
-            result = session.run(query, name=name, related_to_username=related_to_username, role=role)
+            result = session.run(query, name=name, username=username, role=role)
             return result.single()
 
 
@@ -243,7 +243,7 @@ class therapy_graph:
 if __name__ == "__main__":
     print("hello")
     #all_nodes = therapy_graph.get_all_nodes(print_nodes=True)
-    therapy_graph.add_person(name="mom", related_to_username="user_1", role="mother")
+    therapy_graph.add_person(name="mom", username="user_1", role="mother")
     #therapy_graph.delete_all_people()
     #therapy_graph.create_username("John Doe", "user_1")
     
