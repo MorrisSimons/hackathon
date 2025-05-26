@@ -33,6 +33,22 @@ print("Connected to Neo4j database successfully!")
 
 class therapy_graph:
 
+    def clean_database():
+        """Delete all nodes and relationships from the database"""
+        with driver.session() as session:
+            # Delete all nodes and relationships
+            query = "MATCH (n) DETACH DELETE n"
+            session.run(query)
+            print("All nodes and relationships deleted successfully!")
+
+        # Verify deletion
+        with driver.session() as session:
+            count_query = "MATCH (n) RETURN count(n) as node_count"
+            result = session.run(count_query)
+            node_count = result.single()["node_count"]
+            print(f"Remaining nodes: {node_count}")
+            return node_count
+
     def delete_emotions():
         with driver.session() as session:
             # Delete all emotion nodes
@@ -47,6 +63,22 @@ class therapy_graph:
             emotion_count = result.single()["emotion_count"]
             print(f"Remaining emotion nodes: {emotion_count}")
             return emotion_count
+
+
+    def delete_all_people():
+        with driver.session() as session:
+            # Delete all person nodes
+            query = "MATCH (p:Person) DETACH DELETE p"
+            session.run(query)
+            print("All person nodes deleted successfully!")
+
+        # Verify deletion
+        with driver.session() as session:
+            count_query = "MATCH (p:Person) RETURN count(p) as person_count"
+            result = session.run(count_query)
+            person_count = result.single()["person_count"]
+            print(f"Remaining person nodes: {person_count}")
+            return person_count
 
 
     def insert_emotions_as_nodes():
