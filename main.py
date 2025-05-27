@@ -79,6 +79,22 @@ class TherapyGraph:
             print(f"Remaining emotion connections: {connection_count}")
             return connection_count
 
+    def delete_all_relationships_types():
+        with driver.session() as session:
+            # Delete all relationship nodes
+            query = "MATCH (r:Relationship) DETACH DELETE r"
+            session.run(query)
+            print("All relationship nodes deleted successfully!")
+
+        # Verify deletion
+        with driver.session() as session:
+            count_query = "MATCH (r:Relationship) RETURN count(r) as relationship_count"
+            result = session.run(count_query)
+            relationship_count = result.single()["relationship_count"]
+            print(f"Remaining relationship nodes: {relationship_count}")
+            return relationship_count
+
+
     def delete_all_people():
         with driver.session() as session:
             # Delete all person nodes
@@ -124,7 +140,7 @@ class TherapyGraph:
             print(f"Remaining message nodes: {message_count}")
             return message_count
     
-    def insert_relationships():
+    def insert_relationships_types():
         relationships = ["dad", "mom", "brother", "sister", "friend", "colleague", "partner", "child"]
         
         with driver.session() as session:
