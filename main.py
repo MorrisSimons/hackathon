@@ -262,8 +262,20 @@ class therapy_graph:
             print(f"Emotion '{emotion_name}' added to message '{message_id}' successfully!")
             return result.single()
 
-
-
+    def connect_problem(problem_name, message_id):
+        """Add problem to a message"""
+        with driver.session() as session:
+            query = """
+            MATCH (p:Problem {name: $problem_name})
+            MATCH (m:Message {message_id: $message_id})
+            CREATE (m)-[:HAS_PROBLEM]->(p)
+            RETURN m, p
+            """
+            result = session.run(query, problem_name=problem_name, message_id=message_id)
+            
+            print(f"Problem '{problem_name}' added to message '{message_id}' successfully!")
+            return result.single()
+    
 if __name__ == "__main__":
     print("hello")
     #all_nodes = therapy_graph.get_all_nodes(print_nodes=True)
