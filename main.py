@@ -306,18 +306,29 @@ class TherapyGraph:
             print(f"Emotion '{emotion_name}' added to message '{message_id}' successfully!")
             return result.single()
 
-    def connect_problem(problem_name, message_id):
-        """Add problem to a message"""
+    def connect_problem(problem_name, message_id, username):
+        """Add problem to a message and user"""
         with driver.session() as session:
+            # First create the problem node if it doesn't exist
+            create_problem_query = """
+            MERGE (p:Problem {name: $problem_name})
+            ON CREATE SET p.created_at = datetime()
+            RETURN p
+            """
+            session.run(create_problem_query, problem_name=problem_name)
+            
+            # Then connect it to message and username
             query = """
             MATCH (p:Problem {name: $problem_name})
             MATCH (m:Message {message_id: $message_id})
+            MATCH (u:Username {username: $username})
             CREATE (m)-[:HAS_PROBLEM]->(p)
-            RETURN m, p
+            CREATE (u)-[:HAS_PROBLEM]->(p)
+            RETURN m, p, u
             """
-            result = session.run(query, problem_name=problem_name, message_id=message_id)
+            result = session.run(query, problem_name=problem_name, message_id=message_id, username=username)
             
-            print(f"Problem '{problem_name}' added to message '{message_id}' successfully!")
+            print(f"Problem '{problem_name}' added to message '{message_id}' and user '{username}' successfully!")
             return result.single()
     
 
@@ -335,5 +346,6 @@ if __name__ == "__main__":
     #TherapyGraph.add_message_node(conversation_id="conv_1", message_id="msg_1", username="user_1")
     #TherapyGraph.connect_emotion(emotion_name="joy", message_id="msg_1")
 
+    #TherapyGraph.connect_problem(problem_name="stress", message_id="msg_1", username="user_1")
 
 
