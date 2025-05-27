@@ -367,37 +367,18 @@ class TherapyGraph:
                 print(f"Records available: {consume_item.result_consumed_after} ms")
 
     @staticmethod
-    def create_conversation_summary(conversation_id, summary, topics, insights):
-        """Create a conversation summary node and connect all messages to it"""
+    def create_conversation(conversation_id):
+        """Create a simple conversation node"""
         with driver.session() as session:
-            # Create conversation summary node
             query = """
-            CREATE (cs:ConversationSummary {
+            CREATE (c:Conversation {
                 conversation_id: $conversation_id,
-                summary: $summary,
-                topics: $topics,
-                insights: $insights,
                 created_at: datetime()
             })
-            RETURN cs
+            RETURN c
             """
-            result = session.run(query, 
-                                conversation_id=conversation_id,
-                                summary=summary,
-                                topics=topics,
-                                insights=insights)
-            
-            # Connect all messages with this conversation_id to the summary
-            connect_query = """
-            MATCH (cs:ConversationSummary {conversation_id: $conversation_id})
-            MATCH (m:Message {conversation_id: $conversation_id})
-            CREATE (m)-[:BELONGS_TO]->(cs)
-            RETURN count(m) as connected_messages
-            """
-            connect_result = session.run(connect_query, conversation_id=conversation_id)
-            connected_count = connect_result.single()["connected_messages"]
-            
-            print(f"Conversation summary created for '{conversation_id}' with {connected_count} connected messages!")
+            result = session.run(query, conversation_id=conversation_id)
+            print(f"Conversation '{conversation_id}' created successfully!")
             return result.single()
 
     @staticmethod
