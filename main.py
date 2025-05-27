@@ -179,6 +179,18 @@ class TherapyGraph:
 
         return all_nodes
     
+    def get_all_emotions(print_emotions=False):
+        with driver.session() as session:
+            query = "MATCH (e:Emotion) RETURN e"
+            result = session.run(query)
+            all_emotions = [record["e"] for record in result]
+
+        if print_emotions:
+            for emotion in all_emotions:
+                print(emotion["name"])
+
+        return all_emotions
+    
     def create_vector_index(consume=False):
         """this is only a 1 time use function"""
         with driver.session() as session:
