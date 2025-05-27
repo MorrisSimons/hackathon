@@ -33,6 +33,7 @@ print("Connected to Neo4j database successfully!")
 
 class TherapyGraph:
 
+    @staticmethod
     def clean_database():
         """Delete all nodes and relationships from the database"""
         with driver.session() as session:
@@ -49,6 +50,7 @@ class TherapyGraph:
             print(f"Remaining nodes: {node_count}")
             return node_count
 
+    @staticmethod
     def delete_emotions_classes():
         with driver.session() as session:
             # Delete all emotion nodes
@@ -64,6 +66,7 @@ class TherapyGraph:
             print(f"Remaining emotion nodes: {emotion_count}")
             return emotion_count
 
+    @staticmethod
     def delete_all_emotion_connections():
         with driver.session() as session:
             # Delete all HAS_EMOTION relationships
@@ -79,6 +82,7 @@ class TherapyGraph:
             print(f"Remaining emotion connections: {connection_count}")
             return connection_count
 
+    @staticmethod
     def delete_all_relationships_types():
         with driver.session() as session:
             # Delete all relationship nodes
@@ -95,6 +99,7 @@ class TherapyGraph:
             return relationship_count
 
 
+    @staticmethod
     def delete_all_people():
         with driver.session() as session:
             # Delete all person nodes
@@ -110,6 +115,7 @@ class TherapyGraph:
             print(f"Remaining person nodes: {person_count}")
             return person_count
 
+    @staticmethod
     def delete_all_usernames():
         with driver.session() as session:
             # Delete all username nodes
@@ -125,6 +131,7 @@ class TherapyGraph:
             print(f"Remaining username nodes: {username_count}")
             return username_count
     
+    @staticmethod
     def delete_all_messages():
         with driver.session() as session:
             # Delete all message nodes
@@ -140,6 +147,7 @@ class TherapyGraph:
             print(f"Remaining message nodes: {message_count}")
             return message_count
     
+    @staticmethod
     def insert_relationships_types():
         relationships = ["dad", "mom", "brother", "sister", "friend", "colleague", "partner", "child"]
         
@@ -159,6 +167,7 @@ class TherapyGraph:
             result = session.run(count_query)
             return result.single()["relationship_count"]
 
+    @staticmethod
     def insert_emotions_as_nodes():
          # List of human emotions
         human_emotions = [
@@ -201,6 +210,7 @@ class TherapyGraph:
             print(f"Failed to insert emotions: {e}")
             assert False, "Error inserting emotions into Neo4j database" # TODO: REMOVE ME
 
+    @staticmethod
     def get_all_nodes(print_nodes=False):
         with driver.session() as session:
             query = "MATCH (n) RETURN n"
@@ -213,6 +223,7 @@ class TherapyGraph:
 
         return all_nodes
     
+    @staticmethod
     def get_all_emotions(print_emotions=False):
         with driver.session() as session:
             query = "MATCH (e:Emotion) RETURN e"
@@ -225,6 +236,7 @@ class TherapyGraph:
 
         return all_emotions
     
+    @staticmethod
     def get_all_relationships(print_relationships=False):
         with driver.session() as session:
             query = "MATCH (r:Relationship) RETURN r"
@@ -239,6 +251,7 @@ class TherapyGraph:
     
 
 
+    @staticmethod
     def add_message_node(text ,conversation_id, message_id, username) -> dict:
         with driver.session() as session:
             query = """
@@ -261,6 +274,7 @@ class TherapyGraph:
                                 username=username)
             return result.single()
 
+    @staticmethod
     def add_username(name, username):
         with driver.session() as session:
             query = """
@@ -275,6 +289,7 @@ class TherapyGraph:
             return result.single()
 
 
+    @staticmethod
     def connect_person(name, username, role="person"):
         with driver.session() as session:
             query = """
@@ -290,6 +305,7 @@ class TherapyGraph:
             result = session.run(query, name=name, username=username, role=role)
             return result.single()
     
+    @staticmethod
     def connect_emotion(emotion_name, message_id):
         """Add emotion to a message"""
         with driver.session() as session:
@@ -304,6 +320,7 @@ class TherapyGraph:
             print(f"Emotion '{emotion_name}' added to message '{message_id}' successfully!")
             return result.single()
 
+    @staticmethod
     def connect_problem(problem_name, message_id, username):
         """Add problem to a message and user"""
         with driver.session() as session:
@@ -329,6 +346,7 @@ class TherapyGraph:
             print(f"Problem '{problem_name}' added to message '{message_id}' and user '{username}' successfully!")
             return result.single()
 
+    @staticmethod
     def create_vector_index(consume=False):
         """this is only a 1 time use function"""
         with driver.session() as session:
@@ -348,6 +366,7 @@ class TherapyGraph:
                 print(f"Query executed in: {consume_item.result_available_after} ms")
                 print(f"Records available: {consume_item.result_consumed_after} ms")
 
+    @staticmethod
     def create_conversation_summary(conversation_id, summary, topics, insights):
         """Create a conversation summary node and connect all messages to it"""
         with driver.session() as session:
@@ -381,6 +400,7 @@ class TherapyGraph:
             print(f"Conversation summary created for '{conversation_id}' with {connected_count} connected messages!")
             return result.single()
 
+    @staticmethod
     def connect_message_to_conversation(message_id, conversation_id):
         """Connect a specific message to a conversation summary"""
         with driver.session() as session:
