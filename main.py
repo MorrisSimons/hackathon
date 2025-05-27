@@ -2,6 +2,7 @@ from neo4j import GraphDatabase
 import os
 from dotenv import load_dotenv
 
+
 """Neo4j functions"""
 
 # Load environment variables
@@ -30,7 +31,7 @@ except Exception as e:
 
 print("Connected to Neo4j database successfully!")
 
-class therapy_graph:
+class TherapyGraph:
 
     def clean_database():
         """Delete all nodes and relationships from the database"""
@@ -198,12 +199,12 @@ class therapy_graph:
                 print(f"Records available: {consume_item.result_consumed_after} ms")
 
 
-    def add_message_node(conversation_id, message_id, username) -> dict:
+    def add_message_node(text ,conversation_id, message_id, username) -> dict:
         with driver.session() as session:
             query = """
             MATCH (u:Username {username: $username})
             CREATE (m:Message {
-                text: '',
+                text: $text,
                 conversation_id: $conversation_id,
                 message_id: $message_id,
                 username: $username,
@@ -214,6 +215,7 @@ class therapy_graph:
             RETURN m, u
             """
             result = session.run(query, 
+                                text=text,
                                 conversation_id=conversation_id,
                                 message_id=message_id,
                                 username=username)
@@ -276,20 +278,19 @@ class therapy_graph:
             print(f"Problem '{problem_name}' added to message '{message_id}' successfully!")
             return result.single()
     
+
 if __name__ == "__main__":
     print("hello")
-    #all_nodes = therapy_graph.get_all_nodes(print_nodes=True)
-    #therapy_graph.add_person(name="mom", username="user_1", role="mother")
-    #therapy_graph.add_emotion(username="user_1", emotion_name="joy")
-    #therapy_graph.delete_all_people()
-    #therapy_graph.create_username("John Doe", "user_1")
-    therapy_graph.add_username(name="John Doe", username="user_1")
-    therapy_graph.add_message_node(conversation_id="conv_1", message_id="msg_1", username="user_1")
+    #all_nodes = TherapyGraph.get_all_nodes(print_nodes=True)
+    #TherapyGraph.add_person(name="mom", username="user_1", role="mother")
+    #TherapyGraph.add_emotion(username="user_1", emotion_name="joy")
+    #TherapyGraph.delete_all_people()
+    #TherapyGraph.create_username("John Doe", "user_1")
+    #TherapyGraph.add_message_node(conversation_id="conv_1", message_id="msg_1", username="user_1")
 
-    #therapy_graph.delete_all_messages()
-    #therapy_graph.delete_all_emotion_connections()
-    #therapy_graph.add_message_node(conversation_id="conv_1", message_id="msg_1", username="user_1")
-    #therapy_graph.connect_emotion(emotion_name="joy", message_id="msg_1")
+    #TherapyGraph.delete_all_messages()
+    #TherapyGraph.delete_all_emotion_connections()
+    #TherapyGraph.add_message_node(conversation_id="conv_1", message_id="msg_1", username="user_1")
+    #TherapyGraph.connect_emotion(emotion_name="joy", message_id="msg_1")
 
-    
 
