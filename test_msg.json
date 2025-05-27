@@ -1,22 +1,22 @@
 {
     "conversation": [
         {
-            "message_id": "msg_001",
+            "message_id": "1",
             "role": "agent",
             "message": "hello, how can i help you today? "
         },
         {
-            "message_id": "msg_002",
+            "message_id": "2",
             "role": "user", 
             "message": "hi, my dad beat me when i was child i think of this sometimes like now, that makes me sad. "
         },
         {
-            "message_id": "msg_003",
+            "message_id": "3",
             "role": "agent",
             "message": "that is not very good, how does that affect you now? "
         },
         {
-            "message_id": "msg_004",
+            "message_id": "4",
             "role": "user",
             "message": "i get scared when he gets angry."
         }
