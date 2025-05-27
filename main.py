@@ -237,24 +237,6 @@ class TherapyGraph:
 
         return all_relationships
     
-    def create_vector_index(consume=False):
-        """this is only a 1 time use function"""
-        with driver.session() as session:
-            query = """
-            CREATE VECTOR INDEX message_text_vector IF NOT EXISTS
-            FOR (m:Message) ON (m.text_vector)
-            OPTIONS {
-              indexConfig: {
-                `vector.dimensions`: 384,
-                `vector.similarity_function`: 'cosine'
-              }
-            }
-            """
-            result = session.run(query)
-            if consume:
-                consume_item = result.consume()
-                print(f"Query executed in: {consume_item.result_available_after} ms")
-                print(f"Records available: {consume_item.result_consumed_after} ms")
 
 
     def add_message_node(text ,conversation_id, message_id, username) -> dict:
@@ -346,7 +328,82 @@ class TherapyGraph:
             
             print(f"Problem '{problem_name}' added to message '{message_id}' and user '{username}' successfully!")
             return result.single()
+
+    def create_vector_index(consume=False):
+        """this is only a 1 time use function"""
+        with driver.session() as session:
+            query = """
+            CREATE VECTOR INDEX message_text_vector IF NOT EXISTS
+            FOR (m:Message) ON (m.text_vector)
+            OPTIONS {
+              indexConfig: {
+                `vector.dimensions`: 384,
+                `vector.similarity_function`: 'cosine'
+              }
+            }
+            """
+            result = session.run(query)
+            if consume:
+                consume_item = result.consume()
+                print(f"Query executed in: {consume_item.result_available_after} ms")
+                print(f"Records available: {consume_item.result_consumed_after} ms")
+
+    def create_conversation_summary(conversation_id, summary, topics, insights):
+        """Create a conversation summary node and connect all messages to it"""
+        with driver.session() as session:
+            # Create conversation summary node
+            query = """
+            CREATE (cs:ConversationSummary {
+                conversation_id: $conversation_id,
+                summary: $summary,
+                topics: $topics,
+                insights: $insights,
+                created_at: datetime()
+            })
+            RETURN cs
+            """
+            result = session.run(query, 
+                                conversation_id=conversation_id,
+                                summary=summary,
+                                topics=topics,
+                                insights=insights)
+            
+            # Connect all messages with this conversation_id to the summary
+            connect_query = """
+            MATCH (cs:ConversationSummary {conversation_id: $conversation_id})
+            MATCH (m:Message {conversation_id: $conversation_id})
+            CREATE (m)-[:BELONGS_TO]->(cs)
+            RETURN count(m) as connected_messages
+            """
+            connect_result = session.run(connect_query, conversation_id=conversation_id)
+            connected_count = connect_result.single()["connected_messages"]
+            
+            print(f"Conversation summary created for '{conversation_id}' with {connected_count} connected messages!")
+            return result.single()
+
+    def connect_message_to_conversation(message_id, conversation_id):
+        """Connect a specific message to a conversation summary"""
+        with driver.session() as session:
+            query = """
+            MATCH (m:Message {message_id: $message_id})
+            MATCH (cs:ConversationSummary {conversation_id: $conversation_id})
+            CREATE (m)-[:BELONGS_TO]->(cs)
+            RETURN m, cs
+            """
+            result = session.run(query, message_id=message_id, conversation_id=conversation_id)
+            return result.single()
+
+def connect_all_messages_to_conversation(agent_message, conversation_id="conv_1"):
+    """Connect all messages from agent_message to a conversation summary"""
+    print(f"Connecting all messages to conversation: {conversation_id}")
     
+    # Get all messages and connect them to the conversation
+    for msg in agent_message["conversation"]:
+        message_id = f"msg_{msg['message_id']}"
+        print(f"Connecting message {message_id} to conversation {conversation_id}")
+        TherapyGraph.connect_message_to_conversation(message_id=message_id, conversation_id=conversation_id)
+    
+    print(f"Successfully connected all {len(agent_message['conversation'])} messages to conversation {conversation_id}")
 
 if __name__ == "__main__":
     print("hello")
