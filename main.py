@@ -249,19 +249,18 @@ class therapy_graph:
             return result.single()
     
     def connect_emotion(emotion_name, message_id):
-        """Add emotion to a person"""
+        """Add emotion to a message"""
         with driver.session() as session:
             query = """
             MATCH (e:Emotion {name: $emotion_name})
-            MATCH (u:message_id {message_id: $message_id})
-            CREATE (u)-[:HAS_EMOTION]->(e)
-            RETURN u, e
+            MATCH (m:Message {message_id: $message_id})
+            CREATE (m)-[:HAS_EMOTION]->(e)
+            RETURN m, e
             """
             result = session.run(query, emotion_name=emotion_name, message_id=message_id)
             
-            print(f"Emotion '{emotion_name}' added to user '{message_id}' successfully!")
+            print(f"Emotion '{emotion_name}' added to message '{message_id}' successfully!")
             return result.single()
-        
 
 
 
@@ -272,11 +271,13 @@ if __name__ == "__main__":
     #therapy_graph.add_emotion(username="user_1", emotion_name="joy")
     #therapy_graph.delete_all_people()
     #therapy_graph.create_username("John Doe", "user_1")
-    therapy_graph.delete_all_messages()
-    therapy_graph.delete_all_emotion_connections()
+    therapy_graph.add_username(name="John Doe", username="user_1")
     therapy_graph.add_message_node(conversation_id="conv_1", message_id="msg_1", username="user_1")
-    therapy_graph
-    
+
+    #therapy_graph.delete_all_messages()
+    #therapy_graph.delete_all_emotion_connections()
+    #therapy_graph.add_message_node(conversation_id="conv_1", message_id="msg_1", username="user_1")
+    #therapy_graph.connect_emotion(emotion_name="joy", message_id="msg_1")
 
     
 
