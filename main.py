@@ -123,7 +123,25 @@ class TherapyGraph:
             message_count = result.single()["message_count"]
             print(f"Remaining message nodes: {message_count}")
             return message_count
-
+    
+    def insert_relationships():
+        relationships = ["dad", "mom", "brother", "sister", "friend", "colleague", "partner", "child"]
+        
+        with driver.session() as session:
+            # Create relationship nodes
+            for relationship in relationships:
+                query = """
+                CREATE (r:Relationship {
+                    name: $relationship_name,
+                    created_at: datetime()
+                })
+                """
+                session.run(query, relationship_name=relationship)
+            
+            # Get count of created relationship nodes
+            count_query = "MATCH (r:Relationship) RETURN count(r) as relationship_count"
+            result = session.run(count_query)
+            return result.single()["relationship_count"]
 
     def insert_emotions_as_nodes():
          # List of human emotions
@@ -190,6 +208,18 @@ class TherapyGraph:
                 print(emotion["name"])
 
         return all_emotions
+    
+    def get_all_relationships(print_relationships=False):
+        with driver.session() as session:
+            query = "MATCH (r:Relationship) RETURN r"
+            result = session.run(query)
+            all_relationships = [record["r"] for record in result]
+
+        if print_relationships:
+            for relationship in all_relationships:
+                print(relationship["type"])
+
+        return all_relationships
     
     def create_vector_index(consume=False):
         """this is only a 1 time use function"""
